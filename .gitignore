@@ -34,6 +34,7 @@ Thumbs.db
 docker-compose.override.yml
 
 # Cache
+.cache/
 .vscode-server/
 .windsurf/
 .opencode/
