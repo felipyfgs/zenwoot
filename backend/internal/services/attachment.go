@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"mime/multipart"
 
@@ -60,15 +61,27 @@ func (s *AttachmentService) GetByMessageID(ctx context.Context, messageID int64)
 }
 
 func (s *AttachmentService) GetByID(ctx context.Context, id int64) (*models.Attachment, error) {
+	if id == 0 {
+		return nil, nil
+	}
 	var attachment models.Attachment
 	err := s.db.NewSelect().
 		Model(&attachment).
 		Where("id = ?", id).
 		Scan(ctx)
-	return &attachment, err
+	if err != nil {
+		return nil, err
+	}
+	if attachment.ID == 0 {
+		return nil, nil
+	}
+	return &attachment, nil
 }
 
 func (s *AttachmentService) GetDownloadURL(ctx context.Context, attachment *models.Attachment) (string, error) {
+	if attachment == nil {
+		return "", errors.New("attachment is nil")
+	}
 	if attachment.ExternalURL == nil {
 		return "", nil
 	}

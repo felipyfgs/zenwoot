@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -50,6 +51,19 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 }
 
 func (s *AuthService) Register(ctx context.Context, name, email, password string) (*models.User, error) {
+	if strings.TrimSpace(name) == "" {
+		return nil, fmt.Errorf("authService.Register: name is required")
+	}
+	if strings.TrimSpace(email) == "" {
+		return nil, fmt.Errorf("authService.Register: email is required")
+	}
+	if !isValidEmail(email) {
+		return nil, fmt.Errorf("authService.Register: invalid email format")
+	}
+	if len(password) < 6 {
+		return nil, fmt.Errorf("authService.Register: password must be at least 6 characters")
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("authService.Register: hash: %w", err)
@@ -80,6 +94,24 @@ func (s *AuthService) generateToken(userID int64) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(s.jwtSecret)
+}
+
+func isValidEmail(email string) bool {
+	if len(email) < 3 || len(email) > 254 {
+		return false
+	}
+	atIndex := strings.Index(email, "@")
+	if atIndex <= 0 || atIndex == len(email)-1 {
+		return false
+	}
+	parts := strings.Split(email, "@")
+	if len(parts) != 2 {
+		return false
+	}
+	if strings.Contains(parts[0], " ") || strings.Contains(parts[1], " ") {
+		return false
+	}
+	return true
 }
 
 func (s *AuthService) ValidateToken(tokenStr string) (*Claims, error) {

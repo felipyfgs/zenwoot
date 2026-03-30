@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 
+	"github.com/felipyfgs/zenwoot/backend/internal/helpers"
 	"github.com/felipyfgs/zenwoot/backend/internal/services"
 )
 
@@ -23,14 +24,17 @@ func (h *AttachmentHandler) Register(rg fiber.Router) {
 }
 
 func (h *AttachmentHandler) Upload(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
+	accountID := helpers.GetAccountID(c)
 
 	file, err := c.FormFile("file")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "file required"})
 	}
 
-	messageID, _ := strconv.ParseInt(c.FormValue("message_id"), 10, 64)
+	messageID, err := strconv.ParseInt(c.FormValue("message_id"), 10, 64)
+	if err != nil {
+		messageID = 0
+	}
 
 	ext := ""
 	if len(file.Filename) > 0 {
@@ -50,23 +54,29 @@ func (h *AttachmentHandler) Upload(c fiber.Ctx) error {
 		Extension: ext,
 	})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return helpers.InternalError(c, err)
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(attachment)
 }
 
 func (h *AttachmentHandler) Get(c fiber.Ctx) error {
-	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return helpers.BadRequest(c, "invalid id")
+	}
 
 	attachment, err := h.svc.GetByID(c.Context(), id)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found"})
+		return helpers.NotFound(c, "attachment not found")
+	}
+	if attachment == nil {
+		return helpers.NotFound(c, "attachment not found")
 	}
 
 	url, err := h.svc.GetDownloadURL(c.Context(), attachment)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return helpers.InternalError(c, err)
 	}
 
 	return c.JSON(fiber.Map{
@@ -78,16 +88,22 @@ func (h *AttachmentHandler) Get(c fiber.Ctx) error {
 }
 
 func (h *AttachmentHandler) Download(c fiber.Ctx) error {
-	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return helpers.BadRequest(c, "invalid id")
+	}
 
 	attachment, err := h.svc.GetByID(c.Context(), id)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found"})
+		return helpers.NotFound(c, "attachment not found")
+	}
+	if attachment == nil {
+		return helpers.NotFound(c, "attachment not found")
 	}
 
 	url, err := h.svc.GetDownloadURL(c.Context(), attachment)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return helpers.InternalError(c, err)
 	}
 
 	return c.Status(fiber.StatusFound).JSON(fiber.Map{"url": url})

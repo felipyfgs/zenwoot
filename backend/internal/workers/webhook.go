@@ -49,11 +49,21 @@ func (w *WebhookWorker) Stop() {
 
 func (w *WebhookWorker) handle(event string) nats.MsgHandler {
 	return func(msg *nats.Msg) {
-		var payload map[string]any
-		if err := json.Unmarshal(msg.Data, &payload); err != nil {
+		if w.webhookSvc == nil {
+			logger.Error().Msg("webhookSvc is nil in WebhookWorker")
 			return
 		}
-		accountIDf, _ := payload["account_id"].(float64)
+
+		var payload map[string]any
+		if err := json.Unmarshal(msg.Data, &payload); err != nil {
+			logger.Warn().Err(err).Msg("failed to unmarshal webhook event")
+			return
+		}
+		accountIDf, ok := payload["account_id"].(float64)
+		if !ok {
+			logger.Warn().Msg("account_id not found in payload or invalid type")
+			return
+		}
 		accountID := int64(accountIDf)
 		if accountID == 0 {
 			return

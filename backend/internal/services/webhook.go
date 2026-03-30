@@ -7,9 +7,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"io"
 	"net/http"
 	"time"
 
+	"github.com/felipyfgs/zenwoot/backend/internal/logger"
 	"github.com/felipyfgs/zenwoot/backend/internal/models"
 	"github.com/felipyfgs/zenwoot/backend/internal/repo"
 )
@@ -55,9 +57,19 @@ func (s *WebhookService) Update(ctx context.Context, m *models.Webhook) (*models
 func (s *WebhookService) Dispatch(ctx context.Context, accountID int64, event string, payload any) {
 	hooks, err := s.webhookRepo.ListActiveByEvent(ctx, accountID, event)
 	if err != nil {
+		logger.Error().Err(err).Msg("failed to list webhooks for dispatch")
 		return
 	}
-	body, _ := json.Marshal(payload)
+	if len(hooks) == 0 {
+		return
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to marshal webhook payload")
+		return
+	}
+
 	for _, wh := range hooks {
 		go s.deliver(wh, body)
 	}
@@ -66,17 +78,28 @@ func (s *WebhookService) Dispatch(ctx context.Context, accountID int64, event st
 func (s *WebhookService) deliver(wh *models.Webhook, body []byte) {
 	req, err := http.NewRequest(http.MethodPost, wh.URL, bytes.NewReader(body))
 	if err != nil {
+		logger.Error().Err(err).Str("url", wh.URL).Msg("failed to create webhook request")
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
 	if wh.HmacToken != nil {
 		req.Header.Set("X-Zenwoot-Signature", s.sign(*wh.HmacToken, body))
 	}
+
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
+		logger.Error().Err(err).Str("url", wh.URL).Msg("failed to deliver webhook")
 		return
 	}
 	defer resp.Body.Close()
+
+	if _, err := io.Copy(io.Discard, resp.Body); err != nil {
+		logger.Error().Err(err).Str("url", wh.URL).Msg("failed to read webhook response body")
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		logger.Warn().Int("status", resp.StatusCode).Str("url", wh.URL).Msg("webhook returned non-success status")
+	}
 }
 
 func (s *WebhookService) sign(secret string, body []byte) string {

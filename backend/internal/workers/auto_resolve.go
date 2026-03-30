@@ -44,6 +44,11 @@ func (w *AutoResolveWorker) Stop() {
 }
 
 func (w *AutoResolveWorker) process() {
+	if w.db == nil {
+		logger.Error().Msg("db is nil in AutoResolveWorker")
+		return
+	}
+
 	ctx := context.Background()
 	_, err := w.db.NewUpdate().
 		TableExpr(`"conversations"`).

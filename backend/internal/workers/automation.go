@@ -46,6 +46,11 @@ func (w *AutomationWorker) Stop() {
 
 func (w *AutomationWorker) handle(eventName string) nats.MsgHandler {
 	return func(msg *nats.Msg) {
+		if w.autoRepo == nil {
+			logger.Error().Msg("autoRepo is nil in AutomationWorker")
+			return
+		}
+
 		var payload map[string]any
 		if err := json.Unmarshal(msg.Data, &payload); err != nil {
 			logger.Warn().Err(err).Msg("failed to unmarshal automation event")
@@ -54,7 +59,7 @@ func (w *AutomationWorker) handle(eventName string) nats.MsgHandler {
 
 		accountIDf, ok := payload["account_id"].(float64)
 		if !ok {
-			logger.Warn().Msg("account_id not found in payload")
+			logger.Warn().Msg("account_id not found in payload or invalid type")
 			return
 		}
 		accountID := int64(accountIDf)

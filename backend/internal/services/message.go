@@ -67,17 +67,30 @@ func (s *MessageService) Create(ctx context.Context, in CreateMessageInput) (*mo
 		Private:           in.Private,
 		ContentAttributes: in.ContentAttrs,
 	}
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("messageService.Create begin tx: %w", err)
+	}
+	defer tx.Rollback()
+
 	if err := s.msgRepo.Create(ctx, msg); err != nil {
 		return nil, err
 	}
+
 	now := time.Now()
-	_, err := s.db.NewUpdate().TableExpr(`"conversations"`).
+	_, err = tx.NewUpdate().TableExpr(`"conversations"`).
 		Set(`"last_activity_at" = ?`, now).
 		Where(`"id" = ? AND "account_id" = ?`, in.ConversationID, in.AccountID).
 		Exec(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("messageService.Create update last_activity_at: %w", err)
 	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("messageService.Create commit: %w", err)
+	}
+
 	s.publish("zenwoot.message.created", msg)
 	return msg, nil
 }

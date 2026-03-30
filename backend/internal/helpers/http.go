@@ -68,7 +68,7 @@ func NotFound(c fiber.Ctx, message string) error {
 }
 
 func InternalError(c fiber.Ctx, err error) error {
-	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "internal server error"})
 }
 
 func Unprocessable(c fiber.Ctx, message string) error {
