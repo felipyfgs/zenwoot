@@ -1,0 +1,3993 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "WhatsApp Multi-Session API powered by wzap",
+        "title": "wzap API",
+        "termsOfService": "https://github.com/galvaofelipe421-wq/fiozap",
+        "contact": {
+            "name": "wzap Support",
+            "url": "https://github.com/galvaofelipe421-wq/fiozap"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/health": {
+            "get": {
+                "description": "Returns the health status of the API and its dependencies",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Returns all sessions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "List sessions (Admin Only)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Creates a new session with an auto-generated or custom apiKey",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Create a new session (Admin Only)",
+                "parameters": [
+                    {
+                        "description": "Session data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SessionCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Returns the session identified by :sessionId (name or id)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Get session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Disconnects and deletes the session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Delete session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/chat/archive": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Archives a chat identified by JID, moving it out of the main chat list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Archive a chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Chat JID payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChatActionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/chat/mute": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Mutes notifications for a chat identified by JID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Mute a chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Chat mute payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChatMuteReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/chat/pin": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Pins a chat to the top of the chat list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Pin a chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Chat JID payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChatActionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/chat/unarchive": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Moves a chat back to the main chat list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Unarchive a chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Chat JID payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChatActionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/chat/unmute": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Restores notifications for a muted chat",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Unmute a chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Chat JID payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChatActionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/chat/unpin": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Removes a chat from the pinned position at the top of the chat list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Unpin a chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Chat JID payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChatActionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/community/create": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Creates a new WhatsApp Community (a group of groups) with a name and optional description",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Community"
+                ],
+                "summary": "Create a community",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Community payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateCommunityReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/community/participant/add": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Adds one or more subgroups (by JID) as participants to an existing community",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Community"
+                ],
+                "summary": "Add subgroup to community",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Community participant payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CommunityParticipantReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/community/participant/remove": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Removes one or more subgroups (by JID) from an existing community",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Community"
+                ],
+                "summary": "Remove subgroup from community",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Community participant payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CommunityParticipantReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/connect": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Connects a WhatsApp session (starts pairing if new)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Connect session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/contacts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Returns all contacts from the WhatsApp session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "List contacts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/contacts/avatar": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Fetches the profile picture URL and picture ID for the given WhatsApp JID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Get contact avatar",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "JID payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetAvatarReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GetAvatarResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/contacts/block": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Blocks a WhatsApp contact by JID, preventing them from sending messages",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Block a contact",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "JID payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.BlockContactReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/contacts/blocklist": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Returns the full list of JIDs currently blocked by the session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Get blocked contacts list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/contacts/check": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Checks if phone numbers are registered on WhatsApp",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Check contacts on WhatsApp",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Phone numbers",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CheckContactReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/contacts/info": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Fetches detailed user info (status, profile picture, devices) for one or more WhatsApp JIDs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Get user info for JIDs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "JIDs payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetUserInfoReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.UserInfoResp"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/contacts/privacy": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Retrieves the current session's WhatsApp privacy settings (last-seen, profile photo, status visibility)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Get privacy settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/contacts/profile-picture": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Updates the session account's WhatsApp profile picture with a base64-encoded image",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Set profile picture",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Base64 image payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SetProfilePictureReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/contacts/unblock": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Unblocks a previously blocked WhatsApp contact by JID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Unblock a contact",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "JID payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.BlockContactReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/disconnect": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Disconnects the active WhatsApp session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Disconnect session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Returns all WhatsApp groups the session is part of",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "List joined groups",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/announce": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sets whether only admins can send messages in the group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Set group announce mode",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Enabled state",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupSettingReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/create": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Creates a new WhatsApp group with the given participants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Create a new group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Group properties",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateGroupReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/description": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Updates the description of the specified WhatsApp group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Update group description",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New description",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupTextReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/info": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Get detailed information about a group by JID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Get group info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Group JID",
+                        "name": "jid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/invite-info": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Previews a group's info using an invite code without joining",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Get group info from invite link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Invite Code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/invite-link": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Gets the invite link for a WhatsApp group, optionally resetting it",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Get group invite link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Target Group JID Payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupJIDReq"
+                        }
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Reset the invite link",
+                        "name": "reset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupInviteLinkResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/join": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Joins a group using an invite code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Join group via link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Invite Code",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupJoinReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/join-approval": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Activates or deactivates the admin approval system for new members",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Set group join approval mode",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Enabled state",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupSettingReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/leave": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Leaves a specified WhatsApp group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Leave group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Target Group JID Payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupJIDReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/locked": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sets whether only admins can edit group info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Set group locked mode",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Enabled state",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupSettingReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/name": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Updates the name of the specified WhatsApp group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Update group name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New name",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupTextReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/participants": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Add, remove, promote or demote participants in a group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Update group participants",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Participants and action",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupParticipantReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/photo": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Updates the profile picture of the specified WhatsApp group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Update group photo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Base64 encoded photo",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupPhotoReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/requests": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Get the list of participants that requested to join the group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Get group join requests",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Target Group JID Payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupJIDReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/groups/requests/action": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Approves or rejects participants that requested to join the group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Groups"
+                ],
+                "summary": "Approve/Reject group join requests",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Participants and action (approve/reject)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupRequestActionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/label/chat": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Applies a label to an entire chat conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "summary": "Add label to chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Label chat payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LabelChatReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/label/edit": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Edits an existing label's name, color, or marks it as deleted",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "summary": "Edit a label",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Edit label payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.EditLabelReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/label/message": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Applies a label to a specific message within a chat",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "summary": "Add label to message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Label message payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LabelMessageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/audio": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send an audio message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Media payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendMediaReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/contact": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sends a vCard contact message via WhatsApp to the specified recipient",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a contact card",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Contact payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendContactReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/delete": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Revokes a previously sent message for all recipients",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Delete a sent message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Delete payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.DeleteMessageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/document": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a document",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Media payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendMediaReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/edit": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Edits an existing sent message by ID, replacing its text content",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Edit a sent message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Edit payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.EditMessageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/image": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send an image message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Media payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendMediaReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/link": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sends a hyperlink preview message with optional title and description to the specified recipient",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a link preview message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Link payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendLinkReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/location": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sends a GPS location message with optional name and address to the specified recipient",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a location message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Location payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendLocationReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/poll": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sends a poll with multiple choice options; selectable_count controls how many options a recipient may choose (0 = unlimited)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a poll message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Poll payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendPollReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/presence": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sends a typing, recording, or paused presence indicator to a specific chat; presence values: typing, recording, paused",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Set typing/recording presence",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Presence payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SetPresenceReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/reaction": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Adds an emoji reaction to a message; pass an empty string for reaction to remove an existing reaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "React to a message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reaction payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReactMessageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/read": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sends a read receipt for a specific message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Mark a message as read",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Mark read payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.MarkReadReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/sticker": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sends a base64-encoded sticker image to the specified recipient",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a sticker",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Sticker payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendStickerReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/text": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Sends a text message via WhatsApp. If :id is omitted, session is identified from ApiKey.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a text message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Message payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendTextReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages/video": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Send a video message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Media payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendMediaReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/newsletter/create": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Creates a new WhatsApp Newsletter (channel) with optional description and profile picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Create a newsletter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Newsletter payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateNewsletterReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/newsletter/info": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Retrieves metadata about a newsletter by its JID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Get newsletter info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Newsletter JID",
+                        "name": "jid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/newsletter/invite": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Retrieves newsletter metadata from an invite code without subscribing",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Get newsletter info from invite code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Newsletter invite code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/newsletter/list": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Returns all newsletters the current session is subscribed to",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "List subscribed newsletters",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/newsletter/messages": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Fetches messages from a newsletter; supports pagination via before_id cursor and count",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Get newsletter messages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Messages pagination payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NewsletterMessageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/newsletter/subscribe": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Subscribes the current session to a newsletter identified by its JID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Subscribe to a newsletter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Newsletter JID payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "jid": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/qr": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Returns a QR code for pairing a new WhatsApp device",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Get QR code for pairing",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/unlabel/chat": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Removes a label from a chat conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "summary": "Remove label from chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Label chat payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LabelChatReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/unlabel/message": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Removes a label from a specific message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "summary": "Remove label from message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Label message payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LabelMessageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/webhooks": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Returns all webhooks for the session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhooks"
+                ],
+                "summary": "List webhooks",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Registers a new webhook for the session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhooks"
+                ],
+                "summary": "Create a webhook",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Webhook data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateWebhookReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/webhooks/{wid}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "Removes a webhook from the session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhooks"
+                ],
+                "summary": "Delete a webhook",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session name or ID",
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Webhook ID",
+                        "name": "wid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.APIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.BlockContactReq": {
+            "type": "object",
+            "required": [
+                "jid"
+            ],
+            "properties": {
+                "jid": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ChatActionReq": {
+            "type": "object",
+            "required": [
+                "jid"
+            ],
+            "properties": {
+                "jid": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ChatMuteReq": {
+            "type": "object",
+            "required": [
+                "jid"
+            ],
+            "properties": {
+                "duration": {
+                    "description": "mute duration in seconds; 0 = 8 hours default",
+                    "type": "integer"
+                },
+                "jid": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CheckContactReq": {
+            "type": "object",
+            "required": [
+                "phones"
+            ],
+            "properties": {
+                "phones": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.CommunityParticipantReq": {
+            "type": "object",
+            "required": [
+                "communityJid",
+                "participants"
+            ],
+            "properties": {
+                "communityJid": {
+                    "type": "string"
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.CreateCommunityReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateGroupReq": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "My Awesome Group"
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "5511999999999",
+                        "5511888888888"
+                    ]
+                }
+            }
+        },
+        "dto.CreateNewsletterReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "picture": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateWebhookReq": {
+            "type": "object",
+            "required": [
+                "events",
+                "url"
+            ],
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.EventType"
+                    }
+                },
+                "natsEnabled": {
+                    "type": "boolean"
+                },
+                "secret": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DeleteMessageReq": {
+            "type": "object",
+            "required": [
+                "messageId",
+                "phone"
+            ],
+            "properties": {
+                "messageId": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.EditLabelReq": {
+            "type": "object",
+            "required": [
+                "labelId"
+            ],
+            "properties": {
+                "color": {
+                    "type": "integer"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "labelId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.EditMessageReq": {
+            "type": "object",
+            "required": [
+                "messageId",
+                "phone",
+                "text"
+            ],
+            "properties": {
+                "messageId": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GetAvatarReq": {
+            "type": "object",
+            "required": [
+                "jid"
+            ],
+            "properties": {
+                "jid": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GetAvatarResp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GetUserInfoReq": {
+            "type": "object",
+            "required": [
+                "jids"
+            ],
+            "properties": {
+                "jids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.GroupInviteLinkResp": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GroupJIDReq": {
+            "type": "object",
+            "required": [
+                "groupJid"
+            ],
+            "properties": {
+                "groupJid": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GroupJoinReq": {
+            "type": "object",
+            "required": [
+                "inviteCode"
+            ],
+            "properties": {
+                "inviteCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GroupParticipantReq": {
+            "type": "object",
+            "required": [
+                "action",
+                "groupJid",
+                "participants"
+            ],
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "example": "add"
+                },
+                "groupJid": {
+                    "type": "string"
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "5511999999999"
+                    ]
+                }
+            }
+        },
+        "dto.GroupPhotoReq": {
+            "type": "object",
+            "required": [
+                "groupJid",
+                "photoBase64"
+            ],
+            "properties": {
+                "groupJid": {
+                    "type": "string"
+                },
+                "photoBase64": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GroupRequestActionReq": {
+            "type": "object",
+            "required": [
+                "action",
+                "groupJid",
+                "participants"
+            ],
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "example": "approve"
+                },
+                "groupJid": {
+                    "type": "string"
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "5511999999999"
+                    ]
+                }
+            }
+        },
+        "dto.GroupSettingReq": {
+            "type": "object",
+            "required": [
+                "groupJid"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "groupJid": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GroupTextReq": {
+            "type": "object",
+            "required": [
+                "groupJid",
+                "text"
+            ],
+            "properties": {
+                "groupJid": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.LabelChatReq": {
+            "type": "object",
+            "required": [
+                "jid",
+                "labelId"
+            ],
+            "properties": {
+                "jid": {
+                    "type": "string"
+                },
+                "labelId": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.LabelMessageReq": {
+            "type": "object",
+            "required": [
+                "jid",
+                "labelId",
+                "messageId"
+            ],
+            "properties": {
+                "jid": {
+                    "type": "string"
+                },
+                "labelId": {
+                    "type": "string"
+                },
+                "messageId": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.MarkReadReq": {
+            "type": "object",
+            "required": [
+                "messageId",
+                "phone"
+            ],
+            "properties": {
+                "messageId": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NewsletterMessageReq": {
+            "type": "object",
+            "required": [
+                "newsletterJid"
+            ],
+            "properties": {
+                "beforeId": {
+                    "type": "integer"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "newsletterJid": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ReactMessageReq": {
+            "type": "object",
+            "required": [
+                "messageId",
+                "phone",
+                "reaction"
+            ],
+            "properties": {
+                "messageId": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "reaction": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SendContactReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "phone",
+                "vcard"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "vcard": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SendLinkReq": {
+            "type": "object",
+            "required": [
+                "phone",
+                "url"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SendLocationReq": {
+            "type": "object",
+            "required": [
+                "lat",
+                "lng",
+                "phone"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "lat": {
+                    "type": "number"
+                },
+                "lng": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SendMediaReq": {
+            "type": "object",
+            "required": [
+                "mimeType",
+                "phone"
+            ],
+            "properties": {
+                "base64": {
+                    "type": "string"
+                },
+                "caption": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "mimeType": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SendPollReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "options",
+                "phone"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "selectableCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SendStickerReq": {
+            "type": "object",
+            "required": [
+                "base64",
+                "mimeType",
+                "phone"
+            ],
+            "properties": {
+                "base64": {
+                    "type": "string"
+                },
+                "mimeType": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SendTextReq": {
+            "type": "object",
+            "required": [
+                "phone",
+                "text"
+            ],
+            "properties": {
+                "phone": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SessionCreateReq": {
+            "type": "object",
+            "properties": {
+                "apiKey": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "proxy": {
+                    "$ref": "#/definitions/model.SessionProxy"
+                },
+                "settings": {
+                    "$ref": "#/definitions/model.SessionSettings"
+                },
+                "webhook": {
+                    "$ref": "#/definitions/dto.WebhookCreateInline"
+                }
+            }
+        },
+        "dto.SetPresenceReq": {
+            "type": "object",
+            "required": [
+                "phone",
+                "presence"
+            ],
+            "properties": {
+                "phone": {
+                    "type": "string"
+                },
+                "presence": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SetProfilePictureReq": {
+            "type": "object",
+            "required": [
+                "base64"
+            ],
+            "properties": {
+                "base64": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserInfoResp": {
+            "type": "object",
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "jid": {
+                    "type": "string"
+                },
+                "picture": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.WebhookCreateInline": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.EventType"
+                    }
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.EventType": {
+            "type": "string",
+            "enum": [
+                "All",
+                "Message",
+                "UndecryptableMessage",
+                "MediaRetry",
+                "Receipt",
+                "DeleteForMe",
+                "Connected",
+                "Disconnected",
+                "ConnectFailure",
+                "LoggedOut",
+                "PairSuccess",
+                "PairError",
+                "QR",
+                "QRScannedWithoutMultidevice",
+                "StreamError",
+                "StreamReplaced",
+                "KeepAliveTimeout",
+                "KeepAliveRestored",
+                "ClientOutdated",
+                "TemporaryBan",
+                "CATRefreshError",
+                "ManualLoginReconnect",
+                "Contact",
+                "Picture",
+                "IdentityChange",
+                "UserAbout",
+                "PushName",
+                "BusinessName",
+                "GroupInfo",
+                "JoinedGroup",
+                "Presence",
+                "ChatPresence",
+                "Archive",
+                "Mute",
+                "Pin",
+                "Star",
+                "ClearChat",
+                "DeleteChat",
+                "MarkChatAsRead",
+                "UnarchiveChatsSetting",
+                "LabelEdit",
+                "LabelAssociationChat",
+                "LabelAssociationMessage",
+                "CallOffer",
+                "CallAccept",
+                "CallTerminate",
+                "CallOfferNotice",
+                "CallRelayLatency",
+                "CallPreAccept",
+                "CallReject",
+                "CallTransport",
+                "UnknownCallEvent",
+                "NewsletterJoin",
+                "NewsletterLeave",
+                "NewsletterMuteChange",
+                "NewsletterLiveUpdate",
+                "HistorySync",
+                "AppState",
+                "AppStateSyncComplete",
+                "AppStateSyncError",
+                "OfflineSyncCompleted",
+                "OfflineSyncPreview",
+                "PrivacySettings",
+                "PushNameSetting",
+                "UserStatusMute",
+                "BlocklistChange",
+                "Blocklist"
+            ],
+            "x-enum-varnames": [
+                "EventAll",
+                "EventMessage",
+                "EventUndecryptableMessage",
+                "EventMediaRetry",
+                "EventReceipt",
+                "EventDeleteForMe",
+                "EventConnected",
+                "EventDisconnected",
+                "EventConnectFailure",
+                "EventLoggedOut",
+                "EventPairSuccess",
+                "EventPairError",
+                "EventQR",
+                "EventQRScannedWithoutMultidevice",
+                "EventStreamError",
+                "EventStreamReplaced",
+                "EventKeepAliveTimeout",
+                "EventKeepAliveRestored",
+                "EventClientOutdated",
+                "EventTemporaryBan",
+                "EventCATRefreshError",
+                "EventManualLoginReconnect",
+                "EventContact",
+                "EventPicture",
+                "EventIdentityChange",
+                "EventUserAbout",
+                "EventPushName",
+                "EventBusinessName",
+                "EventGroupInfo",
+                "EventJoinedGroup",
+                "EventPresence",
+                "EventChatPresence",
+                "EventArchive",
+                "EventMute",
+                "EventPin",
+                "EventStar",
+                "EventClearChat",
+                "EventDeleteChat",
+                "EventMarkChatAsRead",
+                "EventUnarchiveChatsSetting",
+                "EventLabelEdit",
+                "EventLabelAssociationChat",
+                "EventLabelAssociationMessage",
+                "EventCallOffer",
+                "EventCallAccept",
+                "EventCallTerminate",
+                "EventCallOfferNotice",
+                "EventCallRelayLatency",
+                "EventCallPreAccept",
+                "EventCallReject",
+                "EventCallTransport",
+                "EventUnknownCallEvent",
+                "EventNewsletterJoin",
+                "EventNewsletterLeave",
+                "EventNewsletterMuteChange",
+                "EventNewsletterLiveUpdate",
+                "EventHistorySync",
+                "EventAppState",
+                "EventAppStateSyncComplete",
+                "EventAppStateSyncError",
+                "EventOfflineSyncCompleted",
+                "EventOfflineSyncPreview",
+                "EventPrivacySettings",
+                "EventPushNameSetting",
+                "EventUserStatusMute",
+                "EventBlocklistChange",
+                "EventBlocklist"
+            ]
+        },
+        "model.SessionProxy": {
+            "type": "object",
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.SessionSettings": {
+            "type": "object",
+            "properties": {
+                "alwaysOnline": {
+                    "type": "boolean"
+                },
+                "ignoreGroups": {
+                    "type": "boolean"
+                },
+                "ignoreStatus": {
+                    "type": "boolean"
+                },
+                "msgRejectCall": {
+                    "type": "string"
+                },
+                "readMessages": {
+                    "type": "boolean"
+                },
+                "rejectCall": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKey": {
+            "description": "Session or admin API key. Pass the value directly in the ApiKey header.",
+            "type": "apiKey",
+            "name": "ApiKey",
+            "in": "header"
+        }
+    }
+}

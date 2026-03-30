@@ -1,0 +1,94 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace file
+go.work
+
+# Build artifacts
+build/
+dist/
+wzap
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Whatsmeow sessions (contains sensitive data)
+sessions/
+*.session
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+
+# Temporary files
+tmp/
+*.tmp
+
+# Docker volumes
+postgres_data/
+minio_data/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.csr
+ssl/
+
+# Kilo config (local)
+.kilo/
+AGENTS.md
+
+# --- Added for Zenwoot Cleanup ---
+# Node
+node_modules/
+.next/
+.nuxt/
+out/
+dist/
+build/
+
+# Go Binaries
+backend/main
+backend/*.exe
+
+# Exclude redundant wzap code
+wzap/
+
+# Python / ML Models
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.onnx
+
+# Data
+*.sqlite
+*.db
+
+# Chatwoot study reference (not part of project)
+chatwoot-study/
+
+# Local frontend reference copies (not part of project)
+.local/
