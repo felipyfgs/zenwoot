@@ -54,3 +54,22 @@ func (r *WebhookRepo) Delete(ctx context.Context, accountID, id int64) error {
 	}
 	return nil
 }
+
+func (r *WebhookRepo) GetByID(ctx context.Context, accountID, id int64) (*models.Webhook, error) {
+	var m models.Webhook
+	err := r.WithTenant(ctx, accountID).Where(`"id" = ?`, id).Scan(ctx, &m)
+	if err != nil {
+		return nil, fmt.Errorf("webhookRepo.GetByID: %w", err)
+	}
+	return &m, nil
+}
+
+func (r *WebhookRepo) Update(ctx context.Context, m *models.Webhook) error {
+	_, err := r.DB().NewUpdate().Model(m).
+		Where(`"id" = ? AND "account_id" = ?`, m.ID, m.AccountID).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("webhookRepo.Update: %w", err)
+	}
+	return nil
+}

@@ -60,3 +60,13 @@ func (r *ContactRepo) Update(ctx context.Context, m *models.Contact) error {
 	}
 	return nil
 }
+
+func (r *ContactRepo) Delete(ctx context.Context, accountID, id int64) error {
+	_, err := r.DB().NewDelete().TableExpr(`"contacts"`).
+		Where(`"id" = ? AND "account_id" = ?`, id, accountID).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("contactRepo.Delete: %w", err)
+	}
+	return nil
+}

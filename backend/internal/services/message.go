@@ -28,6 +28,21 @@ func (s *MessageService) List(ctx context.Context, accountID, conversationID int
 	return s.msgRepo.ListByConversation(ctx, accountID, conversationID, before, limit)
 }
 
+func (s *MessageService) GetByID(ctx context.Context, accountID, id int64) (*models.Message, error) {
+	return s.msgRepo.GetByID(ctx, accountID, id)
+}
+
+func (s *MessageService) Update(ctx context.Context, m *models.Message) (*models.Message, error) {
+	if err := s.msgRepo.Update(ctx, m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (s *MessageService) Delete(ctx context.Context, accountID, id int64) error {
+	return s.msgRepo.Delete(ctx, accountID, id)
+}
+
 type CreateMessageInput struct {
 	ConversationID int64
 	AccountID      int64

@@ -43,3 +43,32 @@ func (r *MessageRepo) Create(ctx context.Context, m *models.Message) error {
 	}
 	return nil
 }
+
+func (r *MessageRepo) GetByID(ctx context.Context, accountID, id int64) (*models.Message, error) {
+	var m models.Message
+	err := r.WithTenant(ctx, accountID).Where(`"id" = ?`, id).Scan(ctx, &m)
+	if err != nil {
+		return nil, fmt.Errorf("messageRepo.GetByID: %w", err)
+	}
+	return &m, nil
+}
+
+func (r *MessageRepo) Update(ctx context.Context, m *models.Message) error {
+	_, err := r.DB().NewUpdate().Model(m).
+		Where(`"id" = ? AND "account_id" = ?`, m.ID, m.AccountID).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("messageRepo.Update: %w", err)
+	}
+	return nil
+}
+
+func (r *MessageRepo) Delete(ctx context.Context, accountID, id int64) error {
+	_, err := r.DB().NewDelete().TableExpr(`"messages"`).
+		Where(`"id" = ? AND "account_id" = ?`, id, accountID).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("messageRepo.Delete: %w", err)
+	}
+	return nil
+}

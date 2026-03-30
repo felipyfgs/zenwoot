@@ -27,6 +27,7 @@ func (h *ConversationHandler) Register(rg fiber.Router) {
 	rg.Post("/conversations/:id/reopen", h.Reopen)
 	rg.Post("/conversations/:id/snooze", h.Snooze)
 	rg.Post("/conversations/:id/assignments", h.Assign)
+	rg.Delete("/conversations/:id", h.Delete)
 }
 
 func (h *ConversationHandler) List(c fiber.Ctx) error {
@@ -134,4 +135,13 @@ func (h *ConversationHandler) Assign(c fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.JSON(conv)
+}
+
+func (h *ConversationHandler) Delete(c fiber.Ctx) error {
+	accountID := c.Locals("account_id").(int64)
+	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err := h.svc.Delete(c.Context(), accountID, id); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.SendStatus(fiber.StatusNoContent)
 }

@@ -53,6 +53,7 @@ func main() {
 	msgRepo := repo.NewMessageRepo(bunDB)
 	inboxRepo := repo.NewInboxRepo(bunDB)
 	labelRepo := repo.NewLabelRepo(bunDB)
+	teamRepo := repo.NewTeamRepo(bunDB)
 	webhookRepo := repo.NewWebhookRepo(bunDB)
 	autoRepo := repo.NewAutomationRuleRepo(bunDB)
 	notificationRepo := repo.NewNotificationRepo(bunDB)
@@ -63,7 +64,9 @@ func main() {
 	convSvc := services.NewConversationService(convRepo, nc)
 	msgSvc := services.NewMessageService(msgRepo, convRepo, bunDB, nc)
 	contactSvc := services.NewContactService(contactRepo, nc)
-	_ = services.NewLabelService(labelRepo, bunDB)
+	labelSvc := services.NewLabelService(labelRepo, bunDB)
+	teamSvc := services.NewTeamService(teamRepo)
+	automationSvc := services.NewAutomationService(autoRepo)
 	webhookSvc := services.NewWebhookService(webhookRepo)
 	attachmentSvc := services.NewAttachmentService(bunDB, store)
 	notificationSvc := services.NewNotificationService(notificationRepo)
@@ -96,7 +99,7 @@ func main() {
 	// Public routes
 	handlers.NewAuthHandler(authSvc).Register(app)
 
-	// Webhook routes (no auth)
+	// Webhook routes (no auth - incoming webhooks)
 	webhookHandler := handlers.NewWebhookHandler()
 	webhookGroup := app.Group("")
 	webhookHandler.Register(webhookGroup)
@@ -111,10 +114,17 @@ func main() {
 	handlers.NewMessageHandler(msgSvc).Register(account)
 	handlers.NewContactHandler(contactSvc).Register(account)
 	handlers.NewInboxHandler(inboxRepo).Register(account)
+	handlers.NewLabelHandler(labelSvc).Register(account)
+	handlers.NewTeamHandler(teamSvc).Register(account)
+	handlers.NewAutomationHandler(automationSvc).Register(account)
 	handlers.NewSearchHandler(contactRepo, convRepo).Register(account)
 	handlers.NewAttachmentHandler(attachmentSvc).Register(account)
 	handlers.NewNotificationHandler(notificationSvc).Register(account)
 	handlers.NewCustomFilterHandler(customFilterRepo).Register(account)
+
+	// Webhook CRUD (protected)
+	webhookCrudHandler := handlers.NewWebhookHandlerWithService(webhookSvc)
+	webhookCrudHandler.RegisterCRUD(account)
 
 	addr := cfg.App.Host + ":" + cfg.App.Port
 	log.Info().Str("addr", addr).Msg("server listening")

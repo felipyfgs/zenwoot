@@ -4,12 +4,22 @@ import (
 	"encoding/json"
 
 	"github.com/gofiber/fiber/v3"
+
+	"github.com/felipyfgs/zenwoot/backend/internal/helpers"
+	"github.com/felipyfgs/zenwoot/backend/internal/models"
+	"github.com/felipyfgs/zenwoot/backend/internal/services"
 )
 
-type WebhookHandler struct{}
+type WebhookHandler struct {
+	svc *services.WebhookService
+}
 
 func NewWebhookHandler() *WebhookHandler {
 	return &WebhookHandler{}
+}
+
+func NewWebhookHandlerWithService(svc *services.WebhookService) *WebhookHandler {
+	return &WebhookHandler{svc: svc}
 }
 
 func (h *WebhookHandler) Register(rg fiber.Router) {
@@ -17,6 +27,89 @@ func (h *WebhookHandler) Register(rg fiber.Router) {
 	rg.Post("/webhooks/telegram", h.Telegram)
 	rg.Post("/webhooks/email", h.Email)
 	rg.Post("/webhooks/debug", h.Debug)
+}
+
+func (h *WebhookHandler) RegisterCRUD(rg fiber.Router) {
+	rg.Get("/webhooks", h.List)
+	rg.Post("/webhooks", h.Create)
+	rg.Get("/webhooks/:id", h.Get)
+	rg.Patch("/webhooks/:id", h.Update)
+	rg.Delete("/webhooks/:id", h.Delete)
+}
+
+func (h *WebhookHandler) List(c fiber.Ctx) error {
+	accountID := helpers.GetAccountID(c)
+
+	items, err := h.svc.List(c.Context(), accountID)
+	if err != nil {
+		return helpers.InternalError(c, err)
+	}
+	return c.JSON(fiber.Map{"data": items})
+}
+
+func (h *WebhookHandler) Get(c fiber.Ctx) error {
+	accountID := helpers.GetAccountID(c)
+	id, err := helpers.ParseID(c, "id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid webhook id")
+	}
+
+	item, err := h.svc.GetByID(c.Context(), accountID, id)
+	if err != nil {
+		return helpers.NotFound(c, "webhook not found")
+	}
+	return c.JSON(item)
+}
+
+func (h *WebhookHandler) Create(c fiber.Ctx) error {
+	accountID := helpers.GetAccountID(c)
+	var body models.Webhook
+	if err := c.Bind().JSON(&body); err != nil {
+		return helpers.BadRequest(c, "invalid request body")
+	}
+
+	body.AccountID = accountID
+	item, err := h.svc.Create(c.Context(), &body)
+	if err != nil {
+		return helpers.Unprocessable(c, err.Error())
+	}
+	return helpers.Created(c, item)
+}
+
+func (h *WebhookHandler) Update(c fiber.Ctx) error {
+	accountID := helpers.GetAccountID(c)
+	id, err := helpers.ParseID(c, "id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid webhook id")
+	}
+
+	existing, err := h.svc.GetByID(c.Context(), accountID, id)
+	if err != nil {
+		return helpers.NotFound(c, "webhook not found")
+	}
+
+	if err := c.Bind().JSON(existing); err != nil {
+		return helpers.BadRequest(c, "invalid request body")
+	}
+
+	updated, err := h.svc.Update(c.Context(), existing)
+	if err != nil {
+		return helpers.Unprocessable(c, err.Error())
+	}
+	return c.JSON(updated)
+}
+
+func (h *WebhookHandler) Delete(c fiber.Ctx) error {
+	accountID := helpers.GetAccountID(c)
+	id, err := helpers.ParseID(c, "id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid webhook id")
+	}
+
+	if err := h.svc.Delete(c.Context(), accountID, id); err != nil {
+		return helpers.InternalError(c, err)
+	}
+	return c.SendStatus(fiber.StatusNoContent)
 }
 
 func (h *WebhookHandler) WhatsApp(c fiber.Ctx) error {

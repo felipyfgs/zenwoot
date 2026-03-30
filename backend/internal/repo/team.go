@@ -54,3 +54,36 @@ func (r *TeamRepo) Create(ctx context.Context, m *models.Team) error {
 	}
 	return nil
 }
+
+func (r *TeamRepo) Update(ctx context.Context, m *models.Team) error {
+	_, err := r.DB().NewUpdate().Model(m).
+		Where(`"id" = ? AND "account_id" = ?`, m.ID, m.AccountID).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("teamRepo.Update: %w", err)
+	}
+	return nil
+}
+
+func (r *TeamRepo) Delete(ctx context.Context, accountID, id int64) error {
+	_, err := r.DB().NewDelete().TableExpr(`"teams"`).
+		Where(`"id" = ? AND "account_id" = ?`, id, accountID).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("teamRepo.Delete: %w", err)
+	}
+	return nil
+}
+
+func (r *TeamRepo) AddMember(ctx context.Context, teamID, userID int64) error {
+	m := &models.TeamMember{TeamID: teamID, UserID: userID}
+	_, err := r.DB().NewInsert().Model(m).On("CONFLICT DO NOTHING").Exec(ctx)
+	return err
+}
+
+func (r *TeamRepo) RemoveMember(ctx context.Context, teamID, userID int64) error {
+	_, err := r.DB().NewDelete().TableExpr(`"team_members"`).
+		Where(`"team_id" = ? AND "user_id" = ?`, teamID, userID).
+		Exec(ctx)
+	return err
+}

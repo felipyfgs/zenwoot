@@ -41,6 +41,17 @@ func (s *WebhookService) Delete(ctx context.Context, accountID, id int64) error 
 	return s.webhookRepo.Delete(ctx, accountID, id)
 }
 
+func (s *WebhookService) GetByID(ctx context.Context, accountID, id int64) (*models.Webhook, error) {
+	return s.webhookRepo.GetByID(ctx, accountID, id)
+}
+
+func (s *WebhookService) Update(ctx context.Context, m *models.Webhook) (*models.Webhook, error) {
+	if err := s.webhookRepo.Update(ctx, m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (s *WebhookService) Dispatch(ctx context.Context, accountID int64, event string, payload any) {
 	hooks, err := s.webhookRepo.ListActiveByEvent(ctx, accountID, event)
 	if err != nil {

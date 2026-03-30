@@ -22,6 +22,10 @@ func (s *LabelService) List(ctx context.Context, accountID int64) ([]*models.Lab
 	return s.labelRepo.ListByAccount(ctx, accountID)
 }
 
+func (s *LabelService) GetByID(ctx context.Context, accountID, id int64) (*models.Label, error) {
+	return s.labelRepo.GetByID(ctx, accountID, id)
+}
+
 func (s *LabelService) Create(ctx context.Context, m *models.Label) (*models.Label, error) {
 	if err := s.labelRepo.Create(ctx, m); err != nil {
 		return nil, err

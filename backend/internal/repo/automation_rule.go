@@ -55,3 +55,21 @@ func (r *AutomationRuleRepo) Delete(ctx context.Context, accountID, id int64) er
 	}
 	return nil
 }
+
+func (r *AutomationRuleRepo) GetByID(ctx context.Context, accountID, id int64) (*models.AutomationRule, error) {
+	var m models.AutomationRule
+	err := r.WithTenant(ctx, accountID).Where(`"id" = ?`, id).Scan(ctx, &m)
+	if err != nil {
+		return nil, fmt.Errorf("automationRuleRepo.GetByID: %w", err)
+	}
+	return &m, nil
+}
+
+func (r *AutomationRuleRepo) ListByAccount(ctx context.Context, accountID int64) ([]*models.AutomationRule, error) {
+	var items []*models.AutomationRule
+	err := r.WithTenant(ctx, accountID).OrderExpr(`"created_at" DESC`).Scan(ctx, &items)
+	if err != nil {
+		return nil, fmt.Errorf("automationRuleRepo.ListByAccount: %w", err)
+	}
+	return items, nil
+}

@@ -42,6 +42,10 @@ func (s *ContactService) Update(ctx context.Context, m *models.Contact) (*models
 	return m, nil
 }
 
+func (s *ContactService) Delete(ctx context.Context, accountID, id int64) error {
+	return s.contactRepo.Delete(ctx, accountID, id)
+}
+
 func (s *ContactService) publish(subject string, payload any) {
 	if s.nc == nil {
 		return

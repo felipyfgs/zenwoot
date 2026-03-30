@@ -18,7 +18,7 @@ type Account struct {
 	Limits              map[string]any `bun:"limits,type:jsonb"              json:"limits"`
 	CustomAttributes    map[string]any `bun:"custom_attributes,type:jsonb"    json:"custom_attributes"`
 	Settings            map[string]any `bun:"settings,type:jsonb"            json:"settings"`
-	InternalAttributes  map[string]any `bun:"internal_meta,type:jsonb"          json:"internal_meta"`
+	InternalAttributes  map[string]any `bun:"internal_attributes,type:jsonb"    json:"internal_attributes"`
 	Status              int            `bun:"status,default:0"               json:"status"`
 	CreatedAt           time.Time      `bun:"created_at,notnull"              json:"created_at"`
 	UpdatedAt           time.Time      `bun:"updated_at,notnull"              json:"updated_at"`

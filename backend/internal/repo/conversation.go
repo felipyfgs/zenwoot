@@ -94,3 +94,13 @@ func (r *ConversationRepo) Update(ctx context.Context, m *models.Conversation) e
 	}
 	return nil
 }
+
+func (r *ConversationRepo) Delete(ctx context.Context, accountID, id int64) error {
+	_, err := r.DB().NewDelete().TableExpr(`"conversations"`).
+		Where(`"id" = ? AND "account_id" = ?`, id, accountID).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("conversationRepo.Delete: %w", err)
+	}
+	return nil
+}

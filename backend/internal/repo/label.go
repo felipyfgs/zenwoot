@@ -53,3 +53,12 @@ func (r *LabelRepo) Delete(ctx context.Context, accountID, id int64) error {
 	}
 	return nil
 }
+
+func (r *LabelRepo) GetByID(ctx context.Context, accountID, id int64) (*models.Label, error) {
+	var item models.Label
+	err := r.WithTenant(ctx, accountID).Where(`"id" = ?`, id).Scan(ctx, &item)
+	if err != nil {
+		return nil, fmt.Errorf("labelRepo.GetByID: %w", err)
+	}
+	return &item, nil
+}

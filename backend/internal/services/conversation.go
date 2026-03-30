@@ -91,6 +91,10 @@ func (s *ConversationService) Snooze(ctx context.Context, accountID, id int64, u
 	return conv, nil
 }
 
+func (s *ConversationService) Delete(ctx context.Context, accountID, id int64) error {
+	return s.convRepo.Delete(ctx, accountID, id)
+}
+
 func (s *ConversationService) publish(subject string, payload any) {
 	if s.nc == nil {
 		return
