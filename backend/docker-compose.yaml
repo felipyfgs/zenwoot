@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: zenwoot-postgres
+    environment:
+      POSTGRES_USER: zenwoot
+      POSTGRES_PASSWORD: zenwoot123
+      POSTGRES_DB: zenwoot
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zenwoot -d zenwoot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: zenwoot-redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  nats:
+    image: nats:2-alpine
+    container_name: zenwoot-nats
+    command:
+      - "--jetstream"
+      - "--store_dir=/data"
+      - "-m"
+      - "8222"
+    ports:
+      - "4222:4222"  # Client connections
+      - "8222:8222"  # HTTP monitoring
+    volumes:
+      - nats_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2024-01-13T07-53-03Z-cpuv1
+    container_name: zenwoot-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: zenwoot-admin
+      MINIO_ROOT_PASSWORD: zenwoot-secret123
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  nats_data:
+  minio_data:
+
+networks:
+  default:
+    name: zenwoot-network

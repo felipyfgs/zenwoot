@@ -1,0 +1,40 @@
+# Binários
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output
+/bin/
+/dist/
+/build/
+
+# Go
+*.test
+coverage.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Cache
+.cache/
+.vscode-server/
+.windsurf/
+.opencode/
