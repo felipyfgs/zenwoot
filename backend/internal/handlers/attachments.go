@@ -17,12 +17,6 @@ func NewAttachmentHandler(svc *services.AttachmentService) *AttachmentHandler {
 	return &AttachmentHandler{svc: svc}
 }
 
-func (h *AttachmentHandler) Register(rg fiber.Router) {
-	rg.Post("/attachments", h.Upload)
-	rg.Get("/attachments/:id", h.Get)
-	rg.Get("/attachments/:id/download", h.Download)
-}
-
 func (h *AttachmentHandler) Upload(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
 

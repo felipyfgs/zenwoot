@@ -56,10 +56,16 @@ type CreateMessageInput struct {
 }
 
 func (s *MessageService) Create(ctx context.Context, in CreateMessageInput) (*models.Message, error) {
+	// Get conversation to obtain InboxID
+	conv, err := s.convRepo.GetByID(ctx, in.AccountID, in.ConversationID)
+	if err != nil {
+		return nil, fmt.Errorf("messageService.Create get conversation: %w", err)
+	}
+
 	msg := &models.Message{
 		ConversationID:    in.ConversationID,
 		AccountID:         in.AccountID,
-		InboxID:           in.InboxID,
+		InboxID:           conv.InboxID,
 		SenderType:        &in.SenderType,
 		SenderID:          &in.SenderID,
 		Content:           &in.Content,

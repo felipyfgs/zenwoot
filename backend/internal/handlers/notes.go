@@ -8,63 +8,81 @@ import (
 	"github.com/felipyfgs/zenwoot/backend/internal/services"
 )
 
-type AutomationHandler struct {
-	svc *services.AutomationService
+type NoteHandler struct {
+	svc *services.NoteService
 }
 
-func NewAutomationHandler(svc *services.AutomationService) *AutomationHandler {
-	return &AutomationHandler{svc: svc}
+func NewNoteHandler(svc *services.NoteService) *NoteHandler {
+	return &NoteHandler{svc: svc}
 }
 
-func (h *AutomationHandler) List(c fiber.Ctx) error {
+func (h *NoteHandler) List(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
+	contactID, err := helpers.ParseID(c, "contact_id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid contact id")
+	}
 
-	items, err := h.svc.List(c.Context(), accountID)
+	items, err := h.svc.ListByContact(c.Context(), accountID, contactID)
 	if err != nil {
 		return helpers.InternalError(c, err)
 	}
 	return c.JSON(fiber.Map{"data": items})
 }
 
-func (h *AutomationHandler) Get(c fiber.Ctx) error {
+func (h *NoteHandler) Get(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
 	id, err := helpers.ParseID(c, "id")
 	if err != nil {
-		return helpers.BadRequest(c, "invalid automation id")
+		return helpers.BadRequest(c, "invalid note id")
 	}
 
 	item, err := h.svc.GetByID(c.Context(), accountID, id)
 	if err != nil {
-		return helpers.NotFound(c, "automation not found")
+		return helpers.NotFound(c, "note not found")
 	}
 	return c.JSON(item)
 }
 
-func (h *AutomationHandler) Create(c fiber.Ctx) error {
+func (h *NoteHandler) Create(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
-	var body models.AutomationRule
+	contactID, err := helpers.ParseID(c, "contact_id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid contact id")
+	}
+	userID := helpers.GetUserID(c)
+
+	var body struct {
+		Content string `json:"content"`
+	}
 	if err := c.Bind().JSON(&body); err != nil {
 		return helpers.BadRequest(c, "invalid request body")
 	}
 
-	body.AccountID = accountID
-	item, err := h.svc.Create(c.Context(), &body)
+	item := &models.Note{
+		AccountID: accountID,
+		ContactID: contactID,
+		UserID:    userID,
+		Content:   body.Content,
+	}
+
+	created, err := h.svc.Create(c.Context(), item)
 	if err != nil {
 		return helpers.Unprocessable(c, err.Error())
 	}
-	return helpers.Created(c, item)
+	return helpers.Created(c, created)
 }
 
-func (h *AutomationHandler) Update(c fiber.Ctx) error {
+func (h *NoteHandler) Update(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
 	id, err := helpers.ParseID(c, "id")
 	if err != nil {
-		return helpers.BadRequest(c, "invalid automation id")
+		return helpers.BadRequest(c, "invalid note id")
 	}
 
 	existing, err := h.svc.GetByID(c.Context(), accountID, id)
 	if err != nil {
-		return helpers.NotFound(c, "automation not found")
+		return helpers.NotFound(c, "note not found")
 	}
 
 	if err := c.Bind().JSON(existing); err != nil {
@@ -78,11 +96,11 @@ func (h *AutomationHandler) Update(c fiber.Ctx) error {
 	return c.JSON(updated)
 }
 
-func (h *AutomationHandler) Delete(c fiber.Ctx) error {
+func (h *NoteHandler) Delete(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
 	id, err := helpers.ParseID(c, "id")
 	if err != nil {
-		return helpers.BadRequest(c, "invalid automation id")
+		return helpers.BadRequest(c, "invalid note id")
 	}
 
 	if err := h.svc.Delete(c.Context(), accountID, id); err != nil {

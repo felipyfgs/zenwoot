@@ -16,18 +16,6 @@ func NewTeamHandler(svc *services.TeamService) *TeamHandler {
 	return &TeamHandler{svc: svc}
 }
 
-func (h *TeamHandler) Register(rg fiber.Router) {
-	rg.Get("/teams", h.List)
-	rg.Post("/teams", h.Create)
-	rg.Get("/teams/:id", h.Get)
-	rg.Patch("/teams/:id", h.Update)
-	rg.Delete("/teams/:id", h.Delete)
-
-	rg.Get("/teams/:id/members", h.ListMembers)
-	rg.Post("/teams/:id/members", h.AddMember)
-	rg.Delete("/teams/:id/members/:user_id", h.RemoveMember)
-}
-
 func (h *TeamHandler) List(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
 

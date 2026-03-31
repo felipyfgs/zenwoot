@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v3"
 
+	"github.com/felipyfgs/zenwoot/backend/internal/helpers"
 	"github.com/felipyfgs/zenwoot/backend/internal/models"
 	"github.com/felipyfgs/zenwoot/backend/internal/services"
 )
@@ -17,36 +16,34 @@ func NewMessageHandler(svc *services.MessageService) *MessageHandler {
 	return &MessageHandler{svc: svc}
 }
 
-func (h *MessageHandler) Register(rg fiber.Router) {
-	rg.Get("/conversations/:conversation_id/messages", h.List)
-	rg.Post("/conversations/:conversation_id/messages", h.Create)
-	rg.Get("/messages/:id", h.Get)
-	rg.Patch("/messages/:id", h.Update)
-	rg.Delete("/messages/:id", h.Delete)
-}
-
 func (h *MessageHandler) List(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
-	convID, _ := strconv.ParseInt(c.Params("conversation_id"), 10, 64)
-	limit, _ := strconv.Atoi(c.Query("limit", "25"))
+	accountID := helpers.GetAccountID(c)
+	convID, err := helpers.ParseID(c, "conversation_id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid conversation id")
+	}
 
+	limit := helpers.ParseQueryInt(c, "limit", 25)
 	var before *int64
 	if b := c.Query("before"); b != "" {
-		v, _ := strconv.ParseInt(b, 10, 64)
+		v, _ := helpers.ParseID(c, "before")
 		before = &v
 	}
 
 	msgs, err := h.svc.List(c.Context(), accountID, convID, before, limit)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return helpers.InternalError(c, err)
 	}
 	return c.JSON(fiber.Map{"data": msgs})
 }
 
 func (h *MessageHandler) Create(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
-	userID := c.Locals("user_id").(int64)
-	convID, _ := strconv.ParseInt(c.Params("conversation_id"), 10, 64)
+	accountID := helpers.GetAccountID(c)
+	userID := helpers.GetUserID(c)
+	convID, err := helpers.ParseID(c, "conversation_id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid conversation id")
+	}
 
 	var body struct {
 		Content      string         `json:"content"`
@@ -55,7 +52,7 @@ func (h *MessageHandler) Create(c fiber.Ctx) error {
 		ContentAttrs map[string]any `json:"content_attributes"`
 	}
 	if err := c.Bind().JSON(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body"})
+		return helpers.BadRequest(c, "invalid request body")
 	}
 
 	msg, err := h.svc.Create(c.Context(), services.CreateMessageInput{
@@ -69,33 +66,40 @@ func (h *MessageHandler) Create(c fiber.Ctx) error {
 		ContentAttrs:   body.ContentAttrs,
 	})
 	if err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"error": err.Error()})
+		return helpers.Unprocessable(c, err.Error())
 	}
-	return c.Status(fiber.StatusCreated).JSON(msg)
+	return helpers.Created(c, msg)
 }
 
 func (h *MessageHandler) Get(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
-	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+	accountID := helpers.GetAccountID(c)
+	id, err := helpers.ParseID(c, "id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid message id")
+	}
+
 	msg, err := h.svc.GetByID(c.Context(), accountID, id)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "message not found"})
+		return helpers.NotFound(c, "message not found")
 	}
 	return c.JSON(msg)
 }
 
 func (h *MessageHandler) Update(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
-	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+	accountID := helpers.GetAccountID(c)
+	id, err := helpers.ParseID(c, "id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid message id")
+	}
 
 	existing, err := h.svc.GetByID(c.Context(), accountID, id)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "message not found"})
+		return helpers.NotFound(c, "message not found")
 	}
 
 	var body models.Message
 	if err := c.Bind().JSON(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body"})
+		return helpers.BadRequest(c, "invalid request body")
 	}
 
 	existing.Content = body.Content
@@ -103,16 +107,20 @@ func (h *MessageHandler) Update(c fiber.Ctx) error {
 
 	updated, err := h.svc.Update(c.Context(), existing)
 	if err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"error": err.Error()})
+		return helpers.Unprocessable(c, err.Error())
 	}
 	return c.JSON(updated)
 }
 
 func (h *MessageHandler) Delete(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
-	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+	accountID := helpers.GetAccountID(c)
+	id, err := helpers.ParseID(c, "id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid message id")
+	}
+
 	if err := h.svc.Delete(c.Context(), accountID, id); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return helpers.InternalError(c, err)
 	}
 	return c.SendStatus(fiber.StatusNoContent)
 }

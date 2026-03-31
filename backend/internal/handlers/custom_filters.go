@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v3"
 
+	"github.com/felipyfgs/zenwoot/backend/internal/helpers"
 	"github.com/felipyfgs/zenwoot/backend/internal/models"
 	"github.com/felipyfgs/zenwoot/backend/internal/repo"
 )
@@ -17,75 +16,73 @@ func NewCustomFilterHandler(repo *repo.CustomFilterRepo) *CustomFilterHandler {
 	return &CustomFilterHandler{repo: repo}
 }
 
-func (h *CustomFilterHandler) Register(rg fiber.Router) {
-	rg.Get("/custom_filters", h.List)
-	rg.Post("/custom_filters", h.Create)
-	rg.Put("/custom_filters/:id", h.Update)
-	rg.Delete("/custom_filters/:id", h.Delete)
-}
-
 func (h *CustomFilterHandler) List(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
-	userID := c.Locals("user_id").(int64)
+	accountID := helpers.GetAccountID(c)
+	userID := helpers.GetUserID(c)
 
 	filters, err := h.repo.List(c.Context(), accountID, userID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return helpers.InternalError(c, err)
 	}
 
 	return c.JSON(fiber.Map{"data": filters})
 }
 
 func (h *CustomFilterHandler) Create(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
-	userID := c.Locals("user_id").(int64)
+	accountID := helpers.GetAccountID(c)
+	userID := helpers.GetUserID(c)
 
 	var body models.CustomFilter
 	if err := c.Bind().JSON(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body"})
+		return helpers.BadRequest(c, "invalid request body")
 	}
 
 	body.AccountID = accountID
 	body.UserID = userID
 
-	err := h.repo.Create(c.Context(), &body)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	if err := h.repo.Create(c.Context(), &body); err != nil {
+		return helpers.InternalError(c, err)
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(body)
+	return helpers.Created(c, body)
 }
 
 func (h *CustomFilterHandler) Update(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
-	userID := c.Locals("user_id").(int64)
-	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+	accountID := helpers.GetAccountID(c)
+	userID := helpers.GetUserID(c)
+
+	id, err := helpers.ParseID(c, "id")
+	if err != nil {
+		return helpers.BadRequest(c, "invalid filter id")
+	}
 
 	var body models.CustomFilter
 	if err := c.Bind().JSON(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body"})
+		return helpers.BadRequest(c, "invalid request body")
 	}
 
 	body.ID = id
 	body.AccountID = accountID
 	body.UserID = userID
 
-	err := h.repo.Update(c.Context(), &body)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	if err := h.repo.Update(c.Context(), &body); err != nil {
+		return helpers.InternalError(c, err)
 	}
 
 	return c.JSON(body)
 }
 
 func (h *CustomFilterHandler) Delete(c fiber.Ctx) error {
-	accountID := c.Locals("account_id").(int64)
-	userID := c.Locals("user_id").(int64)
-	id, _ := strconv.ParseInt(c.Params("id"), 10, 64)
+	accountID := helpers.GetAccountID(c)
+	userID := helpers.GetUserID(c)
 
-	err := h.repo.Delete(c.Context(), id, accountID, userID)
+	id, err := helpers.ParseID(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return helpers.BadRequest(c, "invalid filter id")
+	}
+
+	if err := h.repo.Delete(c.Context(), id, accountID, userID); err != nil {
+		return helpers.InternalError(c, err)
 	}
 
 	return c.JSON(fiber.Map{"success": true})

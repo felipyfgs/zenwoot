@@ -104,3 +104,27 @@ func (r *ConversationRepo) Delete(ctx context.Context, accountID, id int64) erro
 	}
 	return nil
 }
+
+func (r *ConversationRepo) Search(ctx context.Context, accountID int64, q string, page, limit int) ([]*models.Conversation, int, error) {
+	var items []*models.Conversation
+
+	query := r.WithTenant(ctx, accountID).
+		Where(`"identifier" ILIKE ?`, "%"+q+"%").
+		Relation("Assignee").
+		Relation("Contact").
+		Relation("Inbox")
+
+	total, err := query.Count(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("conversationRepo.Search count: %w", err)
+	}
+
+	err = query.OrderExpr(`"last_activity_at" DESC`).
+		Limit(limit).
+		Offset((page-1)*limit).
+		Scan(ctx, &items)
+	if err != nil {
+		return nil, 0, fmt.Errorf("conversationRepo.Search scan: %w", err)
+	}
+	return items, total, nil
+}

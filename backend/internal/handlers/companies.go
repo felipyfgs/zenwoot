@@ -8,65 +8,74 @@ import (
 	"github.com/felipyfgs/zenwoot/backend/internal/services"
 )
 
-type ContactHandler struct {
-	svc *services.ContactService
+type CompanyHandler struct {
+	svc *services.CompanyService
 }
 
-func NewContactHandler(svc *services.ContactService) *ContactHandler {
-	return &ContactHandler{svc: svc}
+func NewCompanyHandler(svc *services.CompanyService) *CompanyHandler {
+	return &CompanyHandler{svc: svc}
 }
 
-func (h *ContactHandler) List(c fiber.Ctx) error {
+func (h *CompanyHandler) List(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
-	q := c.Query("q", "")
-	page, limit := helpers.ParsePageParams(c)
 
-	items, total, err := h.svc.Search(c.Context(), accountID, q, page, limit)
+	items, err := h.svc.List(c.Context(), accountID)
 	if err != nil {
 		return helpers.InternalError(c, err)
 	}
-	return c.JSON(fiber.Map{"data": items, "total": total})
+	return c.JSON(fiber.Map{"data": items})
 }
 
-func (h *ContactHandler) Get(c fiber.Ctx) error {
+func (h *CompanyHandler) Search(c fiber.Ctx) error {
+	accountID := helpers.GetAccountID(c)
+	q := c.Query("q", "")
+
+	items, err := h.svc.Search(c.Context(), accountID, q)
+	if err != nil {
+		return helpers.InternalError(c, err)
+	}
+	return c.JSON(fiber.Map{"data": items})
+}
+
+func (h *CompanyHandler) Get(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
 	id, err := helpers.ParseID(c, "id")
 	if err != nil {
-		return helpers.BadRequest(c, "invalid contact id")
+		return helpers.BadRequest(c, "invalid company id")
 	}
 
-	contact, err := h.svc.GetByID(c.Context(), accountID, id)
+	item, err := h.svc.GetByID(c.Context(), accountID, id)
 	if err != nil {
-		return helpers.NotFound(c, "contact not found")
+		return helpers.NotFound(c, "company not found")
 	}
-	return c.JSON(contact)
+	return c.JSON(item)
 }
 
-func (h *ContactHandler) Create(c fiber.Ctx) error {
+func (h *CompanyHandler) Create(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
-	var body models.Contact
+	var body models.Company
 	if err := c.Bind().JSON(&body); err != nil {
 		return helpers.BadRequest(c, "invalid request body")
 	}
 
 	body.AccountID = accountID
-	contact, err := h.svc.Create(c.Context(), &body)
+	item, err := h.svc.Create(c.Context(), &body)
 	if err != nil {
 		return helpers.Unprocessable(c, err.Error())
 	}
-	return helpers.Created(c, contact)
+	return helpers.Created(c, item)
 }
 
-func (h *ContactHandler) Update(c fiber.Ctx) error {
+func (h *CompanyHandler) Update(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
 	id, err := helpers.ParseID(c, "id")
 	if err != nil {
-		return helpers.BadRequest(c, "invalid contact id")
+		return helpers.BadRequest(c, "invalid company id")
 	}
 
 	existing, err := h.svc.GetByID(c.Context(), accountID, id)
 	if err != nil {
-		return helpers.NotFound(c, "contact not found")
+		return helpers.NotFound(c, "company not found")
 	}
 
 	if err := c.Bind().JSON(existing); err != nil {
@@ -80,11 +89,11 @@ func (h *ContactHandler) Update(c fiber.Ctx) error {
 	return c.JSON(updated)
 }
 
-func (h *ContactHandler) Delete(c fiber.Ctx) error {
+func (h *CompanyHandler) Delete(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
 	id, err := helpers.ParseID(c, "id")
 	if err != nil {
-		return helpers.BadRequest(c, "invalid contact id")
+		return helpers.BadRequest(c, "invalid company id")
 	}
 
 	if err := h.svc.Delete(c.Context(), accountID, id); err != nil {

@@ -16,12 +16,6 @@ func NewAuthHandler(authSvc *services.AuthService) *AuthHandler {
 	return &AuthHandler{authSvc: authSvc}
 }
 
-func (h *AuthHandler) Register(app *fiber.App) {
-	auth := app.Group("/api/v1/auth")
-	auth.Post("/sign_in", h.SignIn)
-	auth.Post("/sign_up", h.SignUp)
-}
-
 func (h *AuthHandler) SignIn(c fiber.Ctx) error {
 	var body struct {
 		Email    string `json:"email"`

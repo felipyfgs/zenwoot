@@ -16,17 +16,6 @@ func NewLabelHandler(svc *services.LabelService) *LabelHandler {
 	return &LabelHandler{svc: svc}
 }
 
-func (h *LabelHandler) Register(rg fiber.Router) {
-	rg.Get("/labels", h.List)
-	rg.Post("/labels", h.Create)
-	rg.Get("/labels/:id", h.Get)
-	rg.Patch("/labels/:id", h.Update)
-	rg.Delete("/labels/:id", h.Delete)
-
-	rg.Post("/conversations/:conversation_id/labels", h.AddToConversation)
-	rg.Delete("/conversations/:conversation_id/labels/:label_id", h.RemoveFromConversation)
-}
-
 func (h *LabelHandler) List(c fiber.Ctx) error {
 	accountID := helpers.GetAccountID(c)
 

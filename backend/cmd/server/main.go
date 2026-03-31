@@ -9,10 +9,10 @@ import (
 
 	"github.com/felipyfgs/zenwoot/backend/internal/config"
 	"github.com/felipyfgs/zenwoot/backend/internal/db"
-	"github.com/felipyfgs/zenwoot/backend/internal/handlers"
 	"github.com/felipyfgs/zenwoot/backend/internal/logger"
 	"github.com/felipyfgs/zenwoot/backend/internal/middleware"
 	"github.com/felipyfgs/zenwoot/backend/internal/repo"
+	"github.com/felipyfgs/zenwoot/backend/internal/router"
 	"github.com/felipyfgs/zenwoot/backend/internal/services"
 	"github.com/felipyfgs/zenwoot/backend/internal/storage"
 	"github.com/felipyfgs/zenwoot/backend/internal/workers"
@@ -27,27 +27,23 @@ func main() {
 	logger.Init(cfg.App.Env == "development")
 	log := logger.Log
 
-	// --- Database ---
 	bunDB := db.New(cfg.DB.DSN, cfg.App.Env == "development", log)
 	if err := db.RunMigrations(context.Background(), bunDB); err != nil {
 		log.Fatal().Err(err).Msg("failed to run migrations")
 	}
 
-	// --- Storage ---
 	store, err := storage.NewS3Storage(cfg.MinIO)
 	if err != nil {
 		log.Warn().Err(err).Msg("failed to connect to MinIO, attachments will be disabled")
 		store = nil
 	}
 
-	// --- NATS ---
 	nc, err := nats.Connect(cfg.NATS.URL)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to NATS")
 	}
 	defer nc.Close()
 
-	// --- Repos ---
 	convRepo := repo.NewConversationRepo(bunDB)
 	contactRepo := repo.NewContactRepo(bunDB)
 	msgRepo := repo.NewMessageRepo(bunDB)
@@ -58,8 +54,13 @@ func main() {
 	autoRepo := repo.NewAutomationRuleRepo(bunDB)
 	notificationRepo := repo.NewNotificationRepo(bunDB)
 	customFilterRepo := repo.NewCustomFilterRepo(bunDB)
+	companyRepo := repo.NewCompanyRepo(bunDB)
+	noteRepo := repo.NewNoteRepo(bunDB)
+	cannedResponseRepo := repo.NewCannedResponseRepo(bunDB)
+	campaignRepo := repo.NewCampaignRepo(bunDB)
+	agentBotRepo := repo.NewAgentBotRepo(bunDB)
+	macroRepo := repo.NewMacroRepo(bunDB)
 
-	// --- Services ---
 	authSvc := services.NewAuthService(bunDB, cfg.JWT.Secret, cfg.JWT.ExpiryHours)
 	convSvc := services.NewConversationService(convRepo, nc)
 	msgSvc := services.NewMessageService(msgRepo, convRepo, bunDB, nc)
@@ -70,8 +71,13 @@ func main() {
 	webhookSvc := services.NewWebhookService(webhookRepo)
 	attachmentSvc := services.NewAttachmentService(bunDB, store)
 	notificationSvc := services.NewNotificationService(notificationRepo)
+	companySvc := services.NewCompanyService(companyRepo)
+	noteSvc := services.NewNoteService(noteRepo)
+	cannedResponseSvc := services.NewCannedResponseService(cannedResponseRepo)
+	campaignSvc := services.NewCampaignService(campaignRepo)
+	agentBotSvc := services.NewAgentBotService(agentBotRepo)
+	macroSvc := services.NewMacroService(macroRepo)
 
-	// --- Workers ---
 	webhookWorker := workers.NewWebhookWorker(nc, bunDB, webhookSvc)
 	autoWorker := workers.NewAutomationWorker(nc, autoRepo)
 	snoozeWorker := workers.NewAutoResolveWorker(bunDB, 60*time.Second)
@@ -89,42 +95,37 @@ func main() {
 		snoozeWorker.Stop()
 	}()
 
-	// --- Fiber App ---
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c fiber.Ctx, err error) error {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "internal server error"})
 		},
 	})
 
-	// Public routes
-	handlers.NewAuthHandler(authSvc).Register(app)
-
-	// Webhook routes (no auth - incoming webhooks)
-	webhookHandler := handlers.NewWebhookHandler()
-	webhookGroup := app.Group("")
-	webhookHandler.Register(webhookGroup)
-
-	// Protected routes — /api/v1/accounts/:accountId
 	authMw := middleware.AuthMiddleware(authSvc)
 	tenantMw := middleware.TenantMiddleware(bunDB)
 
-	account := app.Group("/api/v1/accounts/:accountId", authMw, tenantMw)
-
-	handlers.NewConversationHandler(convSvc).Register(account)
-	handlers.NewMessageHandler(msgSvc).Register(account)
-	handlers.NewContactHandler(contactSvc).Register(account)
-	handlers.NewInboxHandler(inboxRepo).Register(account)
-	handlers.NewLabelHandler(labelSvc).Register(account)
-	handlers.NewTeamHandler(teamSvc).Register(account)
-	handlers.NewAutomationHandler(automationSvc).Register(account)
-	handlers.NewSearchHandler(contactRepo, convRepo).Register(account)
-	handlers.NewAttachmentHandler(attachmentSvc).Register(account)
-	handlers.NewNotificationHandler(notificationSvc).Register(account)
-	handlers.NewCustomFilterHandler(customFilterRepo).Register(account)
-
-	// Webhook CRUD (protected)
-	webhookCrudHandler := handlers.NewWebhookHandlerWithService(webhookSvc)
-	webhookCrudHandler.RegisterCRUD(account)
+	router.Setup(app, router.Config{
+		AuthSvc:           authSvc,
+		ConvSvc:           convSvc,
+		MsgSvc:            msgSvc,
+		ContactSvc:        contactSvc,
+		LabelSvc:          labelSvc,
+		TeamSvc:           teamSvc,
+		AutomationSvc:     automationSvc,
+		WebhookSvc:        webhookSvc,
+		AttachmentSvc:     attachmentSvc,
+		NotificationSvc:   notificationSvc,
+		CompanySvc:        companySvc,
+		NoteSvc:           noteSvc,
+		CannedResponseSvc: cannedResponseSvc,
+		CampaignSvc:       campaignSvc,
+		AgentBotSvc:       agentBotSvc,
+		MacroSvc:          macroSvc,
+		ConvRepo:          convRepo,
+		ContactRepo:       contactRepo,
+		InboxRepo:         inboxRepo,
+		CustomFilterRepo:  customFilterRepo,
+	}, authMw, tenantMw)
 
 	addr := cfg.App.Host + ":" + cfg.App.Port
 	log.Info().Str("addr", addr).Msg("server listening")
